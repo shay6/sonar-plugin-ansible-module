@@ -1,0 +1,15 @@
+---
+- hosts: all
+
+  tasks:
+  - name: run the new module
+    sonar_plugin:
+      name: JaCoCo
+      state: installed
+      version: 1.0.1.143
+    register: testout
+
+  - name: dump test output
+    debug:
+      msg: '{{ testout }}'
+

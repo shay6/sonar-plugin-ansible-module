@@ -1,0 +1,14 @@
+---
+- hosts: all
+
+  tasks:
+  - name: run the new module
+    sonar_plugin:
+      name: 3D Code Metrics
+      state: installed
+    register: testout
+
+  - name: dump test output
+    debug:
+      msg: '{{ testout }}'
+

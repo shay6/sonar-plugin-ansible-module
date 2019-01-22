@@ -149,7 +149,7 @@ def is_plugin_pending(key, status, module):
     if "errors" in json_obj:
        cancel_url = 'http://' + hostname + ':' + str(port) + cancel_all_api
        requests.post(cancel_url, auth=HTTPBasicAuth(module.params['username'], module.params['password']))
-       module.fail_json(msg='This plugin is broken. The operation canceled and the plugin was removed from pending list')
+       module.fail_json(msg='This plugin is broken or not exist in repo. The operation canceled and the plugin was removed from pending list')
 
     if status == 'custom':
        for stat in json_obj:
@@ -315,7 +315,8 @@ def main():
        key = download_custom_plugin(module.params['custom_url'], module.params['pending_dir'], status_pending)
        if key != 'not-found':
           if is_plugin_pending(key, status_pending, module):
-             module.exit_json(changed=True, stdout='SUCCESS: The plugin is pending')
+             msg = 'SUCCESS: The plugin with key={} is pending'.format(key)
+             module.exit_json(changed=True, stdout=msg)
        else:
           module.exit_json(changed=True, stdout='SUCCESS: The plugin was downloaded, but we can not check if it pending')
     
@@ -360,6 +361,8 @@ def main():
                 download_custom_plugin(link, module.params['pending_dir'], status_pending) 
                 if is_plugin_pending(plugin_data['key'], status_pending, module):
                    module.exit_json(changed=True, stdout='SUCCESS: The plugin version changed')
+             else:
+                module.exit_json(changed=False, stdout='FAILED: This version not exist or not available for this sonar server')
 
 if __name__ == "__main__":
     main()

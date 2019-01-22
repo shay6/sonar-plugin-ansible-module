@@ -1,0 +1,17 @@
+---
+- name: test my new module
+  connection: local
+  hosts: localhost
+
+  tasks:
+  - name: run the new module
+    sonar_plugin:
+      name: SonarC#
+      state: installed
+      custom_url: "https://binaries.sonarsource.com/Distribution/sonar-auth-saml-plugin/sonar-auth-saml-plugin-1.1.0.181.jar"
+    register: testout
+
+  - name: dump test output
+    debug:
+      msg: '{{ testout }}'
+

@@ -1,0 +1,15 @@
+---
+- hosts: all
+
+  tasks:
+  - name: run the new module
+    sonar_plugin:
+      name: SonarJava
+      state: installed
+      version: 5.9.2.16552
+    register: testout
+
+  - name: dump test output
+    debug:
+      msg: '{{ testout }}'
+

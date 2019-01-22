@@ -1,0 +1,13 @@
+---
+- hosts: all
+
+  tasks:
+  - name: run the new module
+    sonar_plugin:
+      custom_url: https://github.com/shakedlokits/ruby-sonar-plugin/releases/download/v2.0.0/sonar-ruby-plugin-2.0.0.jar
+    register: testout
+
+  - name: dump test output
+    debug:
+      msg: '{{ testout }}'
+
