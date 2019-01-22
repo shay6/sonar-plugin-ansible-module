@@ -1,0 +1,13 @@
+---
+- hosts: all
+
+  tasks:
+  - name: run the new module
+    sonar_plugin:
+      custom_url: https://binaries.sonarsource.com/Distribution/sonar-java-plugin/sonar-java-plugin-5.9.2.16552.jar
+    register: testout
+
+  - name: dump test output
+    debug:
+      msg: '{{ testout }}'
+
