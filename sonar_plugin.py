@@ -48,33 +48,75 @@ euthor: "Shay Shevach"
 options:
     name:
         description: |
-            plugin name as it is represented by Sonar.
+            Plugin name as it is represented by Sonar.
     state:
         description: |
-            Whether to install or remove, update or downgrade a plugin.
+            Whether to install or remove a plugin. You can also choose "latest".
     version:
         description: |
-            The version of the plugin.
-    username:
-        description: |
-            Sonarqube user that has admin privileges.
-    password:
-        description: |
-            Password of the above user.
+            The specific version of the plugin.
     custom_url:
         description: |
-            The plugin download URL if we install from a source that is
-            not sonarsource.
-    TODO
+            The plugin download URL, instead of using sonar api.
+    hostname:
+        description: |
+            SonarQube hostname. default="localhost".
+    username:
+        description: |
+            SonarQube user that has admin privileges. default="admin".
+    password:
+        description: |
+            Password of the above user. default="admin".
+    pending_dir:
+        description: |
+            The plugins pending folder. It puts the plugins in it into
+            pending status. default = "/usr/local/sonar/extensions/downloads/".
+    sonar_port:
+        description: |
+            Sonar UI port. default="9000".
 '''
 
 EXAMPLES = '''
-- name: Install C# plugin
-  sonar_plugin:
-      name: csharp
+- name: Install "3D Code Metrics" plugin using the api
+    sonar_plugin:
+      name: 3D Code Metrics
       state: installed
-      username: admin
-      password: admin
+
+- name: Remove "C++ (Community)" plugin using the api
+    sonar_plugin:
+      name: C++ (Community)
+      state: removed
+
+- name: Update "Git" plugin using the api
+    sonar_plugin:
+      name: Git
+      state: latest
+
+- name: Install custom plugin from GitHub
+    sonar_plugin:
+      custom_url: https://github.com/shakedlokits/ruby-sonar-plugin/releases/download/v2.0.0/sonar-ruby-plugin-2.0.0.jar
+
+- name: Update an existing plugin to a specific version, using URL
+    sonar_plugin:
+      custom_url: https://binaries.sonarsource.com/Distribution/sonar-java-plugin/sonar-java-plugin-5.9.2.16552.jar
+
+- name: Install a specific version from "binaries.sonarsource.com"
+    sonar_plugin:
+      name: JaCoCo
+      state: installed
+      version: 1.0.1.143
+
+- name: Update to a specific version from "binaries.sonarsource.com"
+    sonar_plugin:
+      name: SonarJava
+      state: installed
+      version: 5.9.2.16552
+
+- name: Downgrade to a specific version from "binaries.sonarsource.com"
+    sonar_plugin:
+      name: SonarJava
+      state: installed
+      version: 5.8.0.15699
 '''
 
 RETURN = ''' # '''
@@ -153,9 +195,9 @@ def is_plugin_pending(key, status, module):
         cancel_url = 'http://' + hostname + ':' + str(port) + cancel_all_api
         requests.post(cancel_url, auth=HTTPBasicAuth(module.params['username'],
                                                      module.params['password']))
-        module.fail_json(
-            msg='This plugin is broken or not exist in repo. The operation '
-                'canceled and the plugin was removed from pending list')
+        module.exit_json(changed=False,
+            stdout='FAILED: This plugin is broken or not exist in repo. The operation '
+                'canceled and all plugins was removed from pending list')
 
     if status == 'custom':
         for stat in json_obj:
