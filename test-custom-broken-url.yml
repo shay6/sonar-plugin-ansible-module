@@ -1,0 +1,13 @@
+---
+- hosts: all
+
+  tasks:
+  - name: run the new module
+    sonar_plugin:
+      custom_url: broken-url
+    register: testout
+
+  - name: dump test output
+    debug:
+      msg: '{{ testout }}'
+
